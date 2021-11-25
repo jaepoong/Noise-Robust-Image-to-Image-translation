@@ -32,3 +32,4 @@ def print_args(args, args_file=None):
         with open(args_file, 'w') as f:
             for k, v in sorted(vars(args).items()):
                 f.write('{} {}\n'.format(k, v))
+
