@@ -10,9 +10,9 @@ class My_data(data.Dataset):
     def __init__(self,path,train=True,transform=None):
         self.path=path
         if train:
-            self.path=path+#~/train
+            self.path=os.path.join(self.path,"train")
         else:
-            self.path=path+#~/test
+            self.path=os.path.join(self.path,"validation") # 데이터 받아서 바꾸자.
         
         self.img_list=glob.glob(self.path+'/*.jpg')
         #self.class_list=
