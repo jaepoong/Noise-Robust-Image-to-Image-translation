@@ -22,11 +22,9 @@ class My_data(data.Dataset):
 
     def __getitem__(self,index):
         img_path=self.img_list[idx]
-
         img=Image.open(img_path)
-        if self.transform(img)
-        return img
-
+        return self.transform(img)
+    
     def __len__(self):
         return len(self.img_list)
 
