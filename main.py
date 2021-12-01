@@ -3,21 +3,72 @@ import argparse
 #from solver import Solver
 #from data_loader import get_loader
 from torch.backends import cudnn
+from data.dataloader import *
+from utils import util
+from model import sub,model
+import torch.optim as optim
 
 
 def main(config):
     
-    # 디렉터리 없으면 만들어!!!!
+    # Directory
     if not os.path.exists(config.log_dir):
         os.makedirs(config.log_dir)
     if not os.path.exists(config.model_save_dir):
         os.makedirs(config.model_save_dir)
+        
+    # GPU setting
+    if torch.cuda.is_available():
+        device=torch.device('cuda')
+    else:
+        device=torch.device('cpu')    
+    # dataset setting
+    Dataset=My_data(config.dataroot,config.mode)
+    # model setting
+    G=Generator(repeat_num=config.g_repeat_num)
+    Gn=Generator(repeat_num=config.g_repeat_num)    
+    D=Discriminator(repeat_num=config.d_repeat_num)
     
+    G.to(device)
+    Gn.to(device)
+    D.to(device)
+    
+    G.apply(sub.weights_init)
+    Gn.apply(sub.weights_init)
+    D.apply(sub.weights_init)
+    
+    
+    util.print_network(G,"Generator")
+    util.print_network(Gn,"Noise Generator")
+    util.print_network(D,"Discriminator")
+    
+    # Optimizer setting
+    
+    optG=optim.Adam(G.parameters(),
+                    lr=config.g_lr,
+                    betas=(config.beta1,config.beta2))
+    
+    optGn=optim.Adam(Gn.parameters(),
+                     lr=config.g_lr,
+                     betas=(config.beta1,config.beat2))
+    
+    optD=optim.Adam(D.parameters(),
+                    lr=config.d_lr,
+                    betas=(config.beta1,config.beta2))
+    def lr_lambda(iteration):
+ 
+    lr_schedulers=[]
+    
+    
+    
+    
+    
+    train(config)
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
     # dataset 옵션
-    parser.add_argument("--dataroot",type=str,default="data",help="dataset 경로")
+    parser.add_argument("--dataroot",type=str,default="./data",help="dataset 경로")
     parser.add_argument("--noise_kind",type=str,default=None,help="Gn이 거치는 noise 종류")
     parser.add_argument("--g_repeat_num",type=int,default=6,help="G-residual block 의 반복 수")
     parser.add_argument("--d_repeat_num",type=int,default=6,help="D-residual block 의 반복 수")
@@ -43,7 +94,6 @@ if __name__ =="__main__":
     # Directories    
     parser.add_argument('--model_save_dir', type=str, default='./models',help="model의 가중치 저장 디렉터리")
     parser.add_argument('--model_load_dir',type=str,default='./models',help="사용 시에 가중치 저장되어 있는 디렉터리")
-    
     
     config = parser.parse_args()
     

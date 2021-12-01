@@ -9,13 +9,6 @@ import torch.optim as optim
 from torch.backends import cudnn
 import torchvision.datasets
 import torchvision.transforms as transforms
+from model.model import *
 
-import datasets
-
-def train():
-    if torch.cuda.is_available():
-        device=torch.device('cuda')
-    else:
-        device=torch.device('cpu')
-    
-    
+def train(config):

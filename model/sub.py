@@ -40,4 +40,19 @@ class Up_Sampling(nn.Module):
         )
     
     def forward(self,x):
-        return self.conv(x)
+        return self.conv(x)\
+
+def weights_init(m):
+    if isinstance(m, CustomConv2d):
+        if m.conv.weight is not None:
+            if m.residual_init:
+                init.xavier_uniform_(m.conv.weight.data, gain=math.sqrt(2))
+            else:
+                init.xavier_uniform_(m.conv.weight.data)
+        if m.conv.bias is not None:
+            init.constant_(m.conv.bias.data, 0.0)
+    if isinstance(m, nn.Linear):
+        if m.weight is not None:
+            init.xavier_uniform_(m.weight.data)
+        if m.bias is not None:
+            init.constant_(m.bias.data, 0.0)
