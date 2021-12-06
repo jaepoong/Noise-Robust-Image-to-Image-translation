@@ -6,6 +6,7 @@ import torch
 import os
 import glob
 import random
+
 class My_data(data.Dataset):
     """기본 데이터셋
     Args:

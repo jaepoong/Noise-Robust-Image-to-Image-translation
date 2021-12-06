@@ -7,6 +7,7 @@ from data.dataloader import *
 from utils import util
 from model import sub,model
 import torch.optim as optim
+import torch
 
 
 def main(config):
@@ -23,7 +24,13 @@ def main(config):
     else:
         device=torch.device('cpu')    
     # dataset setting
-    Dataset=My_data(config.dataroot,config.mode)
+    dataset=My_data(config.dataroot,config.mode)
+    iterator=torch.utils.data.DataLoader(dataset,
+                                         batchsize=config.batch_size,
+                                         shuffle=False,
+                                         num_workers=config.num_workers,
+                                         pin_memory=True,
+                                         drop_last=True)
     # model setting
     G=Generator(repeat_num=config.g_repeat_num)
     Gn=Generator(repeat_num=config.g_repeat_num)    
@@ -56,9 +63,22 @@ def main(config):
                     lr=config.d_lr,
                     betas=(config.beta1,config.beta2))
     def lr_lambda(iteration):
- 
-    lr_schedulers=[]
     
+    # scheduler
+    lr_schedulers=[]
+    lr_schedulers.append(torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optG, T_0=10, T_mult=1, eta_min=0.00001, last_epoch=-1))
+    lr_schedulers.append(torch.optim.lrs_scheduler.CosineAnnealingWarmRestarts(optGn, T_0=10, T_mult=1, eta_min=0.00001, last_epoch=-1))
+    lr_schedulers.append(torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optD, T_0=10, T_mult=1, eta_min=0.00001, last_epoch=-1))
+    # trainer setting
+    
+    trainer_param={
+        'iterator' : iterator,
+        'models' : (G, Gn, D),
+        'optimizers' : (optG,optGn,optD),
+        'lr_schedulers' : lr_schedulers,
+        'batch_size' : config.batch_size,
+        'num_critic' : config.num_critic,
+    }
     
     
     
@@ -86,7 +106,8 @@ if __name__ =="__main__":
     parser.add_argument('--channel_shuffle', action='store_true')
     parser.add_argument('--color_inversion', action='store_true')
     parser.add_argument('--blurvh', action='store_true')         
-    parser.add_argument('--num_iterations', type=int, default=2000)   
+    parser.add_argument('--num_iterations', type=int, default=2000)
+    parser.add_argument('--num_workers',type=int,default=4)  
     
     # Output options
     parser.add_argument('--visualize_interval', type=int, default=5000, help="시각화 간격")
