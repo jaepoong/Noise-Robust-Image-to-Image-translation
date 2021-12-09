@@ -26,7 +26,7 @@ class My_data(data.Dataset):
         self.transform=transform
         
     def __getitem__(self,index):
-        img_path=self.img_list[idx]
+        img_path=self.img_list[index]
         img=Image.open(img_path)
         return self.transform(img)
     

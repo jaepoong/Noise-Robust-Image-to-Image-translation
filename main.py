@@ -62,7 +62,6 @@ def main(config):
     optD=optim.Adam(D.parameters(),
                     lr=config.d_lr,
                     betas=(config.beta1,config.beta2))
-    def lr_lambda(iteration):
     
     # scheduler
     lr_schedulers=[]

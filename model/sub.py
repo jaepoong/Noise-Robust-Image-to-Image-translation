@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import torch.nn.init as init
 
 class ResidualBlock(nn.Module):
 
@@ -43,7 +44,7 @@ class Up_Sampling(nn.Module):
         return self.conv(x)\
 
 def weights_init(m):
-    if isinstance(m, CustomConv2d):
+    if isinstance(m, nn.Conv2d):
         if m.conv.weight is not None:
             if m.residual_init:
                 init.xavier_uniform_(m.conv.weight.data, gain=math.sqrt(2))
